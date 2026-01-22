@@ -1,0 +1,173 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+.action-buttons {
+  @include flex-center;
+  gap: $spacing-2xl;
+  margin-top: $spacing-2xl;
+  padding: $spacing-lg;
+
+  @include respond-to(sm) {
+    gap: $spacing-3xl;
+  }
+}
+
+.btn-action {
+  @include button-base;
+  width: 80px;
+  height: 80px;
+  font-size: $font-size-2xl;
+  box-shadow: $shadow-lg;
+  position: relative;
+  overflow: hidden;
+
+  @include respond-to(sm) {
+    width: 90px;
+    height: 90px;
+    font-size: $font-size-3xl;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(white, 0.3),
+      transparent
+    );
+    transition: left 0.5s ease;
+  }
+
+  &:hover::before {
+    left: 100%;
+  }
+
+  &:active {
+    transform: scale(0.95);
+    box-shadow: $shadow-md;
+  }
+
+  &.pulse {
+    animation: pulse 0.3s ease;
+  }
+}
+
+.btn-like {
+  background: $gradient-primary;
+  color: white;
+
+  &::after {
+    content: '👍';
+    position: absolute;
+    font-size: $font-size-sm;
+    bottom: -20px;
+    opacity: 0;
+    transition: all $transition-base;
+  }
+
+  &:hover::after {
+    opacity: 1;
+    bottom: -25px;
+  }
+}
+
+.btn-dislike {
+  background: $gradient-dark;
+  color: white;
+
+  &::after {
+    content: '👎';
+    position: absolute;
+    font-size: $font-size-sm;
+    bottom: -20px;
+    opacity: 0;
+    transition: all $transition-base;
+  }
+
+  &:hover::after {
+    opacity: 1;
+    bottom: -25px;
+  }
+}
+
+.restart-button {
+  @include button-base;
+  @include button-size(lg);
+  background: $gradient-primary;
+  color: white;
+  width: 100%;
+  margin-top: $spacing-2xl;
+  border-radius: $border-radius-lg;
+  font-size: $font-size-lg;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(white, 0.2),
+      transparent
+    );
+    transition: left 0.6s ease;
+  }
+
+  &:hover::before {
+    left: 100%;
+  }
+
+  i {
+    margin-right: $spacing-sm;
+    transition: transform $transition-base;
+  }
+
+  &:hover i {
+    transform: rotate(180deg);
+  }
+}
+
+.keyboard-hint {
+  @include flex-center;
+  gap: $spacing-md;
+  margin-top: $spacing-lg;
+  opacity: 0.7;
+
+  .key {
+    @include flex-center;
+    width: 40px;
+    height: 40px;
+    background: rgba($dark-color, 0.1);
+    border-radius: $border-radius-sm;
+    font-weight: 700;
+    font-size: $font-size-sm;
+    color: $dark-color;
+    transition: all $transition-base;
+
+    &:hover {
+      background: rgba($dark-color, 0.2);
+      transform: translateY(-2px);
+    }
+
+    &.key-like {
+      color: $success-color;
+    }
+
+    &.key-dislike {
+      color: $danger-color;
+    }
+  }
+}

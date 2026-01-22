@@ -1,24 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Paws & Preferences 🐾</title>
-
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="dist/main.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paws & Preferences 🐱 - Find Your Favourite Kitty</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="dist/main.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐱</text></svg>">
+    
+    <!-- Meta tags for SEO & Social -->
+    <meta name="description" content="Tinder-like cat matching app built with TypeScript and SCSS. Swipe to find your favorite kitties!">
+    <meta property="og:title" content="Paws & Preferences - Cat Matching App">
+    <meta property="og:description" content="Swipe right for like, left for dislike. Find your perfect cat match!">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1514888286974-6d03bdeacba8?w=1200&h=630&fit=crop">
 </head>
 <body>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p class="mt-3">Loading cute cats...</p>
+    </div>
 
-<div class="container vh-100 d-flex flex-column justify-content-center align-items-center">
-  <h3 class="mb-3">Find Your Favourite Kitty 🐱</h3>
+    <div class="container">
+        <!-- Header -->
+        <header class="header text-center py-4">
+            <h1 class="logo">
+                <i class="fas fa-paw"></i>
+                Paws & Preferences
+            </h1>
+            <p class="tagline">Find your favourite kitty by swiping right for like, left for dislike</p>
+            <p class="subtitle">Built with TypeScript & SCSS • Mobile-first design</p>
+        </header>
 
-  <div id="card-stack"></div>
+        <main class="main-content">
+            <!-- Progress Indicator -->
+            <div class="progress-container mb-4">
+                <div class="progress">
+                    <div id="progress-bar" class="progress-bar" role="progressbar" aria-label="Cat discovery progress"></div>
+                </div>
+                <div class="progress-info">
+                    <span class="progress-text">Discovering cats</span>
+                    <span id="progress-text" class="progress-percentage">0/12</span>
+                </div>
+            </div>
 
-  <div id="summary" class="d-none text-center"></div>
-</div>
+            <!-- Card Stack -->
+            <div id="card-stack" class="card-stack"></div>
 
-<script type="module" src="dist/main.js"></script>
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button id="dislike-btn" class="btn-action btn-dislike" aria-label="Dislike this cat">
+                    <i class="fas fa-times"></i>
+                </button>
+                <button id="like-btn" class="btn-action btn-like" aria-label="Like this cat">
+                    <i class="fas fa-heart"></i>
+                </button>
+            </div>
 
+            <!-- Keyboard Hint -->
+            <div class="keyboard-hint">
+                <div class="key key-dislike">← A</div>
+                <span>or</span>
+                <div class="key">👈 Swipe</div>
+                <span>for Dislike</span>
+                <div class="key">👉 Swipe</div>
+                <span>or</span>
+                <div class="key key-like">D →</div>
+                <span>for Like</span>
+            </div>
+
+            <!-- Instructions -->
+            <div class="instructions">
+                <p class="instruction-text">
+                    <i class="fas fa-mobile-alt"></i>
+                    Swipe the card or click buttons
+                    <i class="fas fa-mouse-pointer"></i>
+                </p>
+                <div class="swipe-icons">
+                    <div class="swipe-icon dislike">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Swipe Left</span>
+                    </div>
+                    <div class="swipe-icon like">
+                        <span>Swipe Right</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Section -->
+            <div id="summary" class="summary"></div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>
+                Built with <span class="text-gradient">TypeScript</span> • 
+                Cat images from <a href="https://cataas.com/" target="_blank" rel="noopener">Cataas</a> •
+                Swipe-based matching interface
+            </p>
+            <div class="tech-stack">
+                <span class="tech-badge">TypeScript</span>
+                <span class="tech-badge">SCSS</span>
+                <span class="tech-badge">Mobile-First</span>
+                <span class="tech-badge">Responsive</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- JavaScript -->
+    <script type="module" src="dist/main.js"></script>
 </body>
 </html>

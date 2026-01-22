@@ -1,16 +1,39 @@
 {
-  "name": "paws-and-preferences",
+  "name": "paws-preferences",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Tinder-like cat matching app built with TypeScript and SCSS",
+  "main": "dist/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "clean": "rimraf dist",
+    "build:ts": "tsc",
+    "build:scss": "sass styles/main.scss dist/main.css --style compressed --no-source-map",
+    "build": "npm run clean && npm run build:ts && npm run build:scss",
+    "dev:ts": "tsc --watch --preserveWatchOutput",
+    "dev:scss": "sass --watch styles/main.scss:dist/main.css --no-source-map",
+    "dev": "concurrently \"npm run dev:ts\" \"npm run dev:scss\"",
+    "start": "npx serve .",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d ."
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "typescript",
+    "scss",
+    "tinder-clone",
+    "cat-app",
+    "swipe",
+    "mobile-first"
+  ],
+  "author": "Aina Balqis",
+  "license": "MIT",
   "devDependencies": {
-    "sass": "^1.97.3",
-    "typescript": "^5.9.3"
+    "typescript": "^5.3.3",
+    "sass": "^1.69.5",
+    "concurrently": "^8.2.2",
+    "rimraf": "^5.0.5",
+    "gh-pages": "^6.0.0"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

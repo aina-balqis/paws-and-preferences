@@ -1,11 +1,464 @@
-@use "cards";
+@use 'variables' as *;
+@use 'mixins' as *;
+@use 'animations' as *;
+@use 'card' as *;
+@use 'buttons' as *;
 
-body {
-  background: #f8f9fa;
+// Reset and Base Styles
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+
 }
 
-#card-stack {
-  position: relative;
-  width: 320px;
-  height: 420px;
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: $font-family-base;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+  color: $dark-color;
+  line-height: 1.6;
+  overflow-x: hidden;
+  padding: $spacing-md;
+
+  @include respond-to(md) {
+    padding: $spacing-xl;
+  }
+}
+
+.container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: $spacing-lg;
+  animation: fadeInUp 0.8s ease;
+
+  @include respond-to(lg) {
+    max-width: 600px;
+  }
+}
+
+// Header Styles
+.header {
+  text-align: center;
+  margin-bottom: $spacing-2xl;
+  padding: $spacing-xl;
+  background: rgba(white, 0.9);
+  border-radius: $border-radius-lg;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: $shadow-md;
+  animation: fadeInDown 0.6s ease;
+
+  .logo {
+    font-family: $font-family-heading;
+    font-size: $font-size-4xl;
+    font-weight: 800;
+    margin-bottom: $spacing-md;
+    @include gradient-text($gradient-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-md;
+
+    i {
+      font-size: $font-size-3xl;
+    }
+  }
+
+  .tagline {
+    font-size: $font-size-lg;
+    color: $gray-600;
+    margin-bottom: $spacing-sm;
+  }
+
+  .subtitle {
+    font-size: $font-size-sm;
+    color: $gray-500;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+}
+
+// Main Content
+.main-content {
+  background: rgba(white, 0.95);
+  border-radius: $border-radius-xl;
+  padding: $spacing-xl;
+  box-shadow: $shadow-xl;
+   -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  animation: fadeIn 0.8s ease 0.2s both;
+
+  @include respond-to(md) {
+    padding: $spacing-2xl;
+  }
+}
+
+// Progress Container
+.progress-container {
+  margin-bottom: $spacing-xl;
+  animation: fadeIn 0.8s ease 0.4s both;
+
+  .progress {
+    height: 10px;
+    border-radius: $border-radius-circle;
+    background: rgba($gray-300, 0.5);
+    overflow: hidden;
+    box-shadow: inset $shadow-sm;
+
+    .progress-bar {
+      border-radius: $border-radius-circle;
+      background: $gradient-success;
+      transition: width 0.5s $transition-bounce;
+      position: relative;
+      overflow: hidden;
+
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(white, 0.3),
+          transparent
+        );
+        animation: shimmer 2s infinite linear;
+      }
+    }
+  }
+
+  .progress-info {
+    @include flex-between;
+    margin-top: $spacing-sm;
+
+    .progress-text {
+      font-size: $font-size-sm;
+      font-weight: 600;
+      color: $gray-700;
+    }
+
+    .progress-percentage {
+      font-size: $font-size-sm;
+      font-weight: 700;
+      @include gradient-text($gradient-primary);
+    }
+  }
+}
+
+// Instructions
+.instructions {
+  text-align: center;
+  margin-top: $spacing-xl;
+  padding: $spacing-lg;
+  background: rgba($gray-100, 0.5);
+  border-radius: $border-radius-lg;
+  animation: fadeIn 0.8s ease 0.6s both;
+
+  .instruction-text {
+    font-size: $font-size-sm;
+    color: $gray-600;
+    margin-bottom: $spacing-md;
+
+    i {
+      margin: 0 $spacing-xs;
+      color: $primary-color;
+    }
+  }
+
+  .swipe-icons {
+    @include flex-center;
+    gap: $spacing-lg;
+    margin-top: $spacing-md;
+
+    .swipe-icon {
+      @include flex-center;
+      gap: $spacing-xs;
+      font-size: $font-size-sm;
+      color: $gray-600;
+
+      i {
+        font-size: $font-size-lg;
+      }
+
+      &.dislike i {
+        color: $danger-color;
+      }
+
+      &.like i {
+        color: $success-color;
+      }
+    }
+  }
+}
+
+// Summary Section
+.summary {
+  display: none;
+  animation: fadeInUp 0.8s ease;
+
+  &.active {
+    display: block;
+  }
+}
+
+.summary-content {
+  @include flex-column;
+  align-items: center;
+  padding: $spacing-2xl;
+  background: white;
+  border-radius: $border-radius-xl;
+  box-shadow: $shadow-lg;
+
+  .summary-header {
+    text-align: center;
+    margin-bottom: $spacing-2xl;
+
+    i {
+      font-size: $font-size-4xl;
+      color: $primary-color;
+      margin-bottom: $spacing-lg;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    h2 {
+      font-size: $font-size-3xl;
+      margin-bottom: $spacing-sm;
+      @include gradient-text($gradient-primary);
+    }
+
+    .lead {
+      font-size: $font-size-lg;
+      color: $gray-600;
+    }
+  }
+}
+
+.liked-cats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-lg;
+  width: 100%;
+  margin: $spacing-xl 0;
+
+  @include respond-to(sm) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @include respond-to(md) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .liked-cat-card {
+    @include card-base;
+    transition: all $transition-base;
+    position: relative;
+    overflow: hidden;
+
+    &:hover {
+      @include card-hover;
+
+      .liked-cat-image {
+        transform: scale(1.1);
+      }
+
+      .liked-cat-info {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .liked-cat-image {
+      width: 100%;
+      height: 120px;
+      background-size: cover;
+      background-position: center;
+      transition: transform $transition-base;
+    }
+
+    .liked-cat-info {
+      padding: $spacing-sm;
+      text-align: center;
+      background: rgba($dark-color, 0.8);
+      color: white;
+      font-size: $font-size-sm;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all $transition-base;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+  }
+}
+
+.no-likes {
+  text-align: center;
+  padding: $spacing-2xl;
+  color: $gray-600;
+
+  i {
+    font-size: $font-size-4xl;
+    color: $gray-400;
+    margin-bottom: $spacing-lg;
+    animation: bounce 2s infinite;
+  }
+
+  h4 {
+    font-size: $font-size-xl;
+    margin-bottom: $spacing-sm;
+    color: $gray-700;
+  }
+
+  p {
+    font-size: $font-size-sm;
+  }
+}
+
+// Footer
+.footer {
+  text-align: center;
+  margin-top: $spacing-2xl;
+  padding-top: $spacing-lg;
+  border-top: 1px solid rgba($gray-300, 0.5);
+  color: $gray-600;
+  font-size: $font-size-sm;
+  animation: fadeIn 0.8s ease 0.8s both;
+
+  a {
+    color: $primary-color;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all $transition-base;
+
+    &:hover {
+      color: $danger-color;
+      text-decoration: underline;
+    }
+  }
+
+  .tech-stack {
+    @include flex-center;
+    gap: $spacing-md;
+    margin-top: $spacing-sm;
+    flex-wrap: wrap;
+
+    .tech-badge {
+      padding: $spacing-xs $spacing-sm;
+      background: rgba($primary-color, 0.1);
+      color: $primary-color;
+      border-radius: $border-radius-sm;
+      font-size: $font-size-sm;
+      font-weight: 600;
+    }
+  }
+}
+
+// Responsive Adjustments
+@include respond-to(sm) {
+  .container {
+    padding: $spacing-xl;
+  }
+
+  .card-stack {
+    height: 520px;
+  }
+
+  .btn-action {
+    width: 90px;
+    height: 90px;
+  }
+}
+
+@include respond-to(md) {
+  body {
+    padding: $spacing-2xl;
+  }
+
+  .container {
+    max-width: 600px;
+  }
+
+  .card-stack {
+    height: 550px;
+  }
+
+  .header .logo {
+    font-size: 3rem;
+  }
+}
+
+// Loading State
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(white, 0.95);
+  @include flex-center;
+  z-index: $z-index-modal;
+  animation: fadeIn 0.3s ease;
+
+  .spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid $gray-300;
+    border-top-color: $primary-color;
+    border-radius: $border-radius-circle;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Utility Classes
+.text-gradient {
+  @include gradient-text($gradient-primary);
+}
+
+.shadow-hover {
+  transition: box-shadow $transition-base;
+  
+  &:hover {
+    box-shadow: $shadow-lg;
+  }
+}
+
+.hidden {
+  display: none !important;
+}
+
+.visible {
+  display: block !important;
+}
+
+.fade-out {
+  animation: fadeIn 0.5s ease reverse forwards;
+}
+
+// Print Styles
+@media print {
+  .action-buttons,
+  .instructions,
+  .footer {
+    display: none;
+  }
+
+  .summary {
+    display: block !important;
+  }
 }

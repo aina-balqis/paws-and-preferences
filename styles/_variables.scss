@@ -1,0 +1,86 @@
+// Color Palette
+$primary-color: #ff6b6b;
+$secondary-color: #4ecdc4;
+$success-color: #1dd1a1;
+$danger-color: #ff4757;
+$warning-color: #ffa502;
+$info-color: #2ed573;
+
+// Neutral Colors
+$dark-color: #2d3436;
+$light-color: #f8f9fa;
+$gray-100: #f8f9fa;
+$gray-200: #e9ecef;
+$gray-300: #dee2e6;
+$gray-400: #ced4da;
+$gray-500: #adb5bd;
+$gray-600: #6c757d;
+$gray-700: #495057;
+$gray-800: #343a40;
+$gray-900: #212529;
+
+// Gradients
+$gradient-primary: linear-gradient(135deg, $primary-color, $danger-color);
+$gradient-secondary: linear-gradient(135deg, $secondary-color, #00cec9);
+$gradient-success: linear-gradient(135deg, $success-color, #10ac84);
+$gradient-dark: linear-gradient(135deg, $gray-800, $gray-900);
+$gradient-light: linear-gradient(135deg, $gray-100, $gray-200);
+
+// Shadows
+$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+$shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+$shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.15);
+$shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.18);
+$shadow-card: 0 20px 40px rgba(0, 0, 0, 0.1);
+
+// Typography
+$font-family-base: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+$font-family-heading: 'Arial Rounded MT Bold', 'Segoe UI', sans-serif;
+$font-size-base: 1rem;
+$font-size-sm: 0.875rem;
+$font-size-lg: 1.125rem;
+$font-size-xl: 1.25rem;
+$font-size-2xl: 1.5rem;
+$font-size-3xl: 2rem;
+$font-size-4xl: 2.5rem;
+
+// Spacing
+$spacing-xs: 0.25rem;
+$spacing-sm: 0.5rem;
+$spacing-md: 1rem;
+$spacing-lg: 1.5rem;
+$spacing-xl: 2rem;
+$spacing-2xl: 3rem;
+$spacing-3xl: 4rem;
+
+// Borders
+$border-radius-sm: 8px;
+$border-radius-md: 16px;
+$border-radius-lg: 24px;
+$border-radius-xl: 32px;
+$border-radius-circle: 50%;
+
+// Transitions
+$transition-fast: 0.15s ease;
+$transition-base: 0.3s ease;
+$transition-slow: 0.5s ease;
+$transition-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+
+// Z-index layers
+$z-index-dropdown: 1000;
+$z-index-sticky: 1020;
+$z-index-fixed: 1030;
+$z-index-modal-backdrop: 1040;
+$z-index-modal: 1050;
+$z-index-popover: 1060;
+$z-index-tooltip: 1070;
+$z-index-toast: 1080;
+
+// Breakpoints
+$breakpoint-xs: 0;
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
+$breakpoint-xxl: 1400px;
