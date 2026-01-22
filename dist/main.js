@@ -1,4 +1,5 @@
-import { initSwipe } from './swipe';
+import { initSwipe } from './swipe.js';
+
 class PawsAndPreferences {
     constructor() {
         this.config = {
@@ -12,11 +13,15 @@ class PawsAndPreferences {
         this.isAnimating = false;
         this.swipeManager = null;
         this.restartButton = null;
-        this.initializeDOM();
+        
+        this.initializeDOM( );
         this.initializeCats();
         this.setupEventListeners();
+        
+        // Terus tunjuk kad pertama tanpa tunggu semua preloading selesai
         this.showCurrentCard();
     }
+
     initializeDOM() {
         this.cardStack = document.getElementById('card-stack');
         this.summarySection = document.getElementById('summary');
@@ -26,34 +31,34 @@ class PawsAndPreferences {
         this.progressText = document.getElementById('progress-text');
         this.loadingOverlay = document.getElementById('loading-overlay');
     }
+
     initializeCats() {
         this.cats = Array.from({ length: this.config.totalCats }, (_, index) => ({
             id: index + 1,
-            imageUrl: `${this.config.apiBaseUrl}?width=400&height=500&random=${Date.now() + index}`,
+            // Gunakan saiz yang lebih kecil untuk pemuatan lebih pantas
+            imageUrl: `${this.config.apiBaseUrl}?width=350&height=450&random=${Date.now() + index}`,
             liked: false,
             viewed: false
         }));
-        // Preload first few images untuk better UX
-        this.preloadImages(this.cats.slice(0, 3).map(cat => cat.imageUrl));
+        
+        // Preload gambar seterusnya di latar belakang (background)
+        this.preloadNextImages(1);
     }
-    async preloadImages(urls) {
-        const promises = urls.map(url => {
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.onload = () => resolve();
-                img.onerror = () => resolve();
-                img.src = url;
-            });
+
+    async preloadNextImages(startIndex) {
+        const nextImages = this.cats.slice(startIndex, startIndex + 3).map(cat => cat.imageUrl);
+        nextImages.forEach(url => {
+            const img = new Image();
+            img.src = url;
         });
-        await Promise.all(promises);
     }
+
     setupEventListeners() {
         this.likeButton.addEventListener('click', () => this.handleLike());
         this.dislikeButton.addEventListener('click', () => this.handleDislike());
-        // Keyboard support
+        
         document.addEventListener('keydown', (e) => {
-            if (this.isAnimating || this.currentIndex >= this.cats.length)
-                return;
+            if (this.isAnimating || this.currentIndex >= this.cats.length) return;
             switch (e.key) {
                 case 'ArrowRight':
                 case 'd':
@@ -67,20 +72,16 @@ class PawsAndPreferences {
                     e.preventDefault();
                     this.handleDislike();
                     break;
-                case 'Enter':
-                    if (this.currentIndex >= this.cats.length) {
-                        this.restartButton?.click();
-                    }
-                    break;
             }
         });
-        // Prevent default touch behavior
+
         this.cardStack.addEventListener('touchmove', (e) => {
             if (this.isAnimating) {
                 e.preventDefault();
             }
         }, { passive: false });
     }
+
     showCurrentCard() {
         if (this.currentIndex >= this.cats.length) {
             this.showSummary();
@@ -91,59 +92,60 @@ class PawsAndPreferences {
         this.createCard(currentCat);
         this.updateProgress();
     }
+
     createCard(cat) {
         this.cardStack.innerHTML = '';
         const card = document.createElement('div');
         card.className = 'cat-card card-enter';
         card.dataset.id = cat.id.toString();
-        // Add counter
+
         const counter = document.createElement('div');
         counter.className = 'card-counter';
         counter.textContent = `${this.currentIndex + 1}/${this.config.totalCats}`;
         card.appendChild(counter);
-        // Create image dengan loading state
+
         const img = new Image();
         img.onload = () => {
             card.style.backgroundImage = `url(${cat.imageUrl})`;
             card.classList.remove('loading');
-            // Add swipe indicator
             const indicator = document.createElement('div');
             indicator.className = 'swipe-indicator';
             card.appendChild(indicator);
-            // Hide loading overlay setelah image loaded
+            
+            // Tutup loading overlay sebaik sahaja gambar pertama sedia
             this.hideLoadingOverlay();
         };
         img.onerror = () => {
             card.classList.remove('loading');
             card.classList.add('error');
             card.innerHTML = `
-        <div class="error-state">
-          <i class="fas fa-cat fa-4x mb-3"></i>
-          <h3>Cat #${cat.id}</h3>
-          <p>This cat is camera shy!</p>
-          <small>Image failed to load</small>
-        </div>
-      `;
+                <div class="error-state">
+                    <i class="fas fa-cat fa-4x mb-3"></i>
+                    <h3>Cat #${cat.id}</h3>
+                    <p>This cat is camera shy!</p>
+                    <small>Image failed to load</small>
+                </div>
+            `;
             this.hideLoadingOverlay();
         };
-        // Show loading state
+
         card.classList.add('loading');
         img.src = cat.imageUrl;
-        // Add overlay dengan SCSS classes
+
         const overlay = document.createElement('div');
         overlay.className = 'card-overlay';
         overlay.innerHTML = `
-      <div class="card-info">
-        <h3>Cat #${cat.id}</h3>
-        <p>Will this kitty capture your heart?</p>
-        <div class="swipe-hint">
-          <span class="hint-left">👎 Dislike</span>
-          <span class="hint-right">Like 👍</span>
-        </div>
-      </div>
-    `;
+            <div class="card-info">
+                <h3>Cat #${cat.id}</h3>
+                <p>Will this kitty capture your heart?</p>
+                <div class="swipe-hint">
+                    <span class="hint-left">👎 Dislike</span>
+                    <span class="hint-right">Like 👍</span>
+                </div>
+            </div>
+        `;
         card.appendChild(overlay);
-        // Initialize swipe dengan visual feedback
+
         this.swipeManager = initSwipe(card, {
             onLike: () => {
                 card.classList.add('swipe-right');
@@ -167,22 +169,24 @@ class PawsAndPreferences {
             }
         });
         this.cardStack.appendChild(card);
-        // Preload next image
+
+        // Preload gambar seterusnya secara senyap
         if (this.currentIndex + 1 < this.cats.length) {
-            this.preloadImages([this.cats[this.currentIndex + 1].imageUrl]);
+            this.preloadNextImages(this.currentIndex + 1);
         }
     }
+
     hideLoadingOverlay() {
-        if (this.loadingOverlay) {
+        if (this.loadingOverlay && this.loadingOverlay.style.display !== 'none') {
             this.loadingOverlay.classList.add('fade-out');
             setTimeout(() => {
                 this.loadingOverlay.style.display = 'none';
             }, 500);
         }
     }
+
     handleLike() {
-        if (this.isAnimating || this.currentIndex >= this.cats.length)
-            return;
+        if (this.isAnimating || this.currentIndex >= this.cats.length) return;
         this.isAnimating = true;
         const currentCard = this.cardStack.querySelector('.cat-card');
         currentCard?.classList.add('exit-right');
@@ -194,9 +198,9 @@ class PawsAndPreferences {
             this.moveToNextCard();
         }, 300);
     }
+
     handleDislike() {
-        if (this.isAnimating || this.currentIndex >= this.cats.length)
-            return;
+        if (this.isAnimating || this.currentIndex >= this.cats.length) return;
         this.isAnimating = true;
         const currentCard = this.cardStack.querySelector('.cat-card');
         currentCard?.classList.add('exit-left');
@@ -205,12 +209,14 @@ class PawsAndPreferences {
             this.moveToNextCard();
         }, 300);
     }
+
     animateButton(button) {
         button.classList.add('pulse');
         setTimeout(() => {
             button.classList.remove('pulse');
         }, 300);
     }
+
     moveToNextCard() {
         this.currentIndex++;
         if (this.currentIndex < this.cats.length) {
@@ -218,24 +224,20 @@ class PawsAndPreferences {
                 this.isAnimating = false;
                 this.showCurrentCard();
             }, 400);
-        }
-        else {
+        } else {
             setTimeout(() => {
                 this.isAnimating = false;
                 this.showSummary();
             }, 400);
         }
     }
+
     updateProgress() {
         const progress = ((this.currentIndex + 1) / this.config.totalCats) * 100;
         this.progressBar.style.width = `${progress}%`;
         this.progressText.textContent = `${this.currentIndex + 1}/${this.config.totalCats}`;
-        // Update percentage text
-        const percentageElement = this.progressText.querySelector('.progress-percentage');
-        if (percentageElement) {
-            percentageElement.textContent = `${Math.round(progress)}%`;
-        }
     }
+
     showSummary() {
         this.cardStack.style.display = 'none';
         this.likeButton.style.display = 'none';
@@ -248,162 +250,57 @@ class PawsAndPreferences {
         this.summarySection.innerHTML = this.generateSummaryHTML();
         this.setupRestartButton();
     }
+
     generateSummaryHTML() {
         const percentage = Math.round((this.likedCats.length / this.config.totalCats) * 100);
         let message = '';
-        if (percentage === 100) {
-            message = 'Purrfect! You loved them all! 🎉';
-        }
-        else if (percentage >= 80) {
-            message = 'You really love cats! 😻';
-        }
-        else if (percentage >= 50) {
-            message = 'You found some favorites! 🐾';
-        }
-        else if (percentage >= 20) {
-            message = 'A few cats caught your eye! 👀';
-        }
-        else if (percentage > 0) {
-            message = 'At least you found one you like! 😸';
-        }
-        else {
-            message = 'No cats captured your heart this time... 😿';
-        }
-        return `
-      <div class="summary-content fade-in-up">
-        <div class="summary-header">
-          <i class="fas fa-trophy"></i>
-          <h2>Your Cat Preferences!</h2>
-          <p class="lead">You liked ${this.likedCats.length} out of ${this.config.totalCats} cats</p>
-          <div class="match-percentage">
-            <div class="percentage-circle">
-              <svg width="120" height="120" viewBox="0 0 120 120">
-                <circle cx="60" cy="60" r="54" fill="none" stroke="#f0f0f0" stroke-width="12"/>
-                <circle cx="60" cy="60" r="54" fill="none" stroke="url(#gradient)" 
-                        stroke-width="12" stroke-linecap="round"
-                        stroke-dasharray="${percentage * 3.4} ${340 - (percentage * 3.4)}"
-                        stroke-dashoffset="85" transform="rotate(-90 60 60)"/>
-                <defs>
-                  <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stop-color="#ff6b6b"/>
-                    <stop offset="100%" stop-color="#ff4757"/>
-                  </linearGradient>
-                </defs>
-              </svg>
-              <div class="percentage-text">${percentage}%</div>
-            </div>
-            <p class="match-message">${message}</p>
-          </div>
-        </div>
-        
-        ${this.likedCats.length > 0 ? `
-          <div class="liked-cats-section">
-            <h4><i class="fas fa-heart"></i> Your Liked Cats</h4>
-            <div class="liked-cats-grid">
-              ${this.likedCats.map(cat => `
-                <div class="liked-cat-card">
-                  <div class="liked-cat-image" style="background-image: url('${cat.imageUrl}')">
-                    <div class="liked-overlay">
-                      <i class="fas fa-heart"></i>
-                      <span>Cat #${cat.id}</span>
+        if (percentage === 100) message = 'Purrfect! You loved them all! 🎉';
+        else if (percentage >= 80) message = 'You really love cats! 😻';
+        else if (percentage >= 50) message = 'You found some favorites! 🐾';
+        else if (percentage >= 20) message = 'A few cats caught your eye! 👀';
+        else if (percentage > 0) message = 'At least you found one you like! 😸';
+        else message = 'No cats captured your heart this time... 😿';
+
+        const gridHTML = this.likedCats.length > 0 
+            ? `<div class="liked-cats-grid">
+                ${this.likedCats.map(cat => `
+                    <div class="liked-cat-card">
+                        <div class="liked-cat-image" style="background-image: url(${cat.imageUrl})"></div>
+                        <div class="liked-cat-info">Cat #${cat.id}</div>
                     </div>
-                  </div>
+                `).join('')}
+               </div>`
+            : `<div class="no-likes">
+                <i class="fas fa-heart-broken fa-3x"></i>
+                <h4>No matches yet</h4>
+                <p>Maybe you're more of a dog person?</p>
+               </div>`;
+
+        return `
+            <div class="summary-content fade-in-up">
+                <div class="summary-header">
+                    <i class="fas fa-trophy"></i>
+                    <h2>Your Cat Preferences!</h2>
+                    <p class="lead">You liked ${this.likedCats.length} out of ${this.config.totalCats} cats</p>
+                    <p>${message}</p>
                 </div>
-              `).join('')}
+                ${gridHTML}
+                <button id="restart-btn" class="restart-button">
+                    <i class="fas fa-redo"></i> Try Again
+                </button>
             </div>
-          </div>
-        ` : `
-          <div class="no-likes">
-            <i class="fas fa-cat fa-4x mb-3"></i>
-            <h4>No cats liked this time</h4>
-            <p class="text-muted">Don't worry, there are plenty more cats to discover!</p>
-          </div>
-        `}
-        
-        <button id="restart-btn" class="restart-button">
-          <i class="fas fa-redo"></i> Start Over with New Cats
-        </button>
-        
-        <div class="summary-footer">
-          <small class="text-muted">
-            <i class="fas fa-clock"></i> Session: ${new Date().toLocaleDateString()}
-            • <i class="fas fa-swipe"></i> ${this.config.totalCats} cats reviewed
-          </small>
-        </div>
-      </div>
-    `;
+        `;
     }
+
     setupRestartButton() {
-        setTimeout(() => {
-            this.restartButton = document.getElementById('restart-btn');
-            this.restartButton?.addEventListener('click', () => this.restart());
-        }, 100);
-    }
-    restart() {
-        this.currentIndex = 0;
-        this.likedCats = [];
-        this.cats.forEach(cat => {
-            cat.liked = false;
-            cat.viewed = false;
+        this.restartButton = document.getElementById('restart-btn');
+        this.restartButton?.addEventListener('click', () => {
+            window.location.reload();
         });
-        // Reinitialize dengan new random images
-        this.initializeCats();
-        // Reset UI
-        this.cardStack.style.display = '';
-        this.likeButton.style.display = '';
-        this.dislikeButton.style.display = '';
-        document.querySelector('.progress-container')?.classList.remove('hidden');
-        document.querySelector('.instructions')?.classList.remove('hidden');
-        document.querySelector('.keyboard-hint')?.classList.remove('hidden');
-        this.summarySection.classList.remove('active');
-        this.summarySection.classList.add('hidden');
-        // Show loading overlay again
-        this.loadingOverlay.style.display = 'flex';
-        this.loadingOverlay.classList.remove('fade-out');
-        // Show first card
-        setTimeout(() => {
-            this.showCurrentCard();
-        }, 500);
     }
 }
-// Initialize app when DOM is loaded
+
+// Initialize the app
 document.addEventListener('DOMContentLoaded', () => {
-    // Add some basic error handling
-    try {
-        new PawsAndPreferences();
-        console.log('🐱 Paws & Preferences app initialized successfully!');
-    }
-    catch (error) {
-        console.error('Failed to initialize app:', error);
-        // Show error message to user
-        const container = document.querySelector('.container');
-        if (container) {
-            container.innerHTML = `
-        <div class="error-container text-center py-5">
-          <i class="fas fa-exclamation-triangle fa-4x text-danger mb-3"></i>
-          <h3>Oops! Something went wrong</h3>
-          <p class="text-muted">We couldn't load the cat matching app.</p>
-          <button onclick="location.reload()" class="btn btn-primary mt-3">
-            <i class="fas fa-redo"></i> Try Again
-          </button>
-        </div>
-      `;
-        }
-    }
+    new PawsAndPreferences();
 });
-// Global error handler untuk uncaught errors
-window.addEventListener('error', (event) => {
-    console.error('Global error:', event.error);
-});
-// Register service worker jika supported
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-            .then(registration => {
-            console.log('ServiceWorker registered:', registration.scope);
-        })
-            .catch(error => {
-            console.log('ServiceWorker registration failed:', error);
-        });
-    });
-}
