@@ -1,0 +1,11 @@
+@use "cards";
+
+body {
+  background: #f8f9fa;
+}
+
+#card-stack {
+  position: relative;
+  width: 320px;
+  height: 420px;
+}
