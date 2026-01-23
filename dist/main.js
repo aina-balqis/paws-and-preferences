@@ -251,7 +251,8 @@ class PawsAndPreferences {
         this.summarySection.classList.add('active');
         
         // GENERATE SUMMARY CONTENT
-        this.generateSummaryHTML();
+       this.summarySection.innerHTML = this.generateSummaryHTML();
+
         
         // SETUP RESTART BUTTON
         this.setupRestartButton();
