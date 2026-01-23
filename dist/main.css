@@ -1041,75 +1041,66 @@ body {
 /* ===== Cute Theme Override ===== */
 
 body {
-  background: linear-gradient(135deg, #fff1f6, #e0f7ff);
+  background: linear-gradient(135deg, #fff1f6, #e0f2fe);
 }
 
-/* Logo bounce feeling */
-.logo {
-  font-weight: 800;
-  letter-spacing: -0.5px;
+.header {
+  background: rgba(255, 255, 255, 0.95);
 }
 
-/* Subtle card wiggle on hover */
-.card {
-  transition: transform .25s ease, box-shadow .25s ease;
+.header .logo {
+  background: linear-gradient(135deg, #ff8fab, #ffb3c6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.card:hover {
-  transform: translateY(-6px) rotate(0.4deg);
-  box-shadow: 0 18px 40px rgba(0,0,0,0.12);
+.header .tagline {
+  color: #6b7280;
 }
 
-/* Cute progress bar */
-.progress-bar {
-  background: linear-gradient(
-    135deg,
-    #ff8fab,
-    #ffd166,
-    #a2d2ff
-  );
+.header .subtitle {
+  color: #9ca3af;
 }
 
-/* Action buttons */
+.main-content {
+  background: #ffffff;
+  border-radius: 32px;
+}
+
+.progress-container .progress .progress-bar {
+  background: linear-gradient(135deg, #ff8fab, #ffd6e0);
+}
+
+.btn-like {
+  background: linear-gradient(135deg, #ff8fab, #ffb3c6);
+}
+
+.btn-dislike {
+  background: linear-gradient(135deg, #a5b4fc, #c7d2fe);
+}
+
 .btn-action {
-  position: relative;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
 }
 
-.btn-like::after {
-  content: "💖";
-  position: absolute;
-  top: -8px;
-  right: -6px;
-  font-size: 0.9rem;
-}
-
-.btn-dislike::after {
-  content: "🙈";
-  position: absolute;
-  top: -8px;
-  right: -6px;
-  font-size: 0.9rem;
-}
-
-/* Button press feel */
-.btn-action:active {
-  transform: scale(0.95);
-}
-
-/* Instructions bubble */
 .instructions {
   background: #fff7fb;
-  border-radius: 20px;
-  border: 1px dashed #ffd6e0;
 }
 
-/* Footer playful */
 .footer {
-  font-size: 0.85rem;
+  color: #9ca3af;
 }
 
-.footer a:hover {
-  text-decoration: underline wavy;
+.footer a {
+  color: #ff8fab;
 }
+
+/* Card overlay text softer */
+.card-info h3 {
+  background: linear-gradient(135deg, #ff8fab, #ffb3c6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 
 /*# sourceMappingURL=main.css.map */
