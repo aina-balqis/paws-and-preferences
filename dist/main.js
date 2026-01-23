@@ -9,10 +9,10 @@ class PawsAndPreferences {
         };
         this.cats = [];
         this.likedCats = [];
-        this.superLikedCats = [];
         this.currentIndex = 0;
         this.isAnimating = false;
         this.swipeManager = null;
+        this.restartButton = null;
         
         this.initializeDOM();
         this.initializeCats();
@@ -27,48 +27,19 @@ class PawsAndPreferences {
         this.summarySection = document.getElementById('summary');
         this.likeButton = document.getElementById('like-btn');
         this.dislikeButton = document.getElementById('dislike-btn');
-        this.superLikeButton = document.getElementById('super-like-btn');
         this.progressBar = document.getElementById('progress-bar');
         this.progressText = document.getElementById('progress-text');
         this.loadingOverlay = document.getElementById('loading-overlay');
-        this.swipedCount = document.getElementById('swiped-count');
-        this.catCount = document.getElementById('cat-count');
-        this.meowBtn = document.getElementById('meow-btn');
     }
 
     initializeCats() {
-        // Generate cat names yang comel
-        const catNames = [
-            "Whiskers", "Luna", "Simba", "Bella", "Oliver", "Chloe", "Leo", "Lily", 
-            "Milo", "Coco", "Max", "Lucy", "Charlie", "Daisy", "Jack", "Zoe",
-            "Oscar", "Molly", "Buddy", "Sophie", "Tiger", "Cleo", "Smokey", "Nala"
-        ];
-        
-        // Generate cat tags yang comel
-        const catTags = [
-            "Fluffy", "Playful", "Cuddly", "Adventurous", "Gentle", "Curious",
-            "Sweet", "Energetic", "Calm", "Loving", "Smart", "Funny",
-            "Brave", "Quiet", "Social", "Independent", "Affectionate", "Mischievous"
-        ];
-        
-        // Generate ages
-        const ages = ["Kitten", "Young", "Adult", "Senior"];
-        
         this.cats = Array.from({ length: this.config.totalCats }, (_, index) => ({
             id: index + 1,
-            name: catNames[index % catNames.length],
-            imageUrl: `${this.config.apiBaseUrl}?width=400&height=500&random=${Date.now() + index}&type=sq`,
+            // Gunakan saiz yang lebih kecil untuk pemuatan lebih pantas
+            imageUrl: `${this.config.apiBaseUrl}?width=350&height=450&random=${Date.now() + index}`,
             liked: false,
-            superLiked: false,
-            viewed: false,
-            age: ages[Math.floor(Math.random() * ages.length)],
-            tags: Array.from({ length: 3 }, () => 
-                catTags[Math.floor(Math.random() * catTags.length)]
-            ).filter((v, i, a) => a.indexOf(v) === i)
+            viewed: false
         }));
-        
-        // Update cat count
-        this.catCount.textContent = this.config.totalCats;
         
         // Preload gambar seterusnya di latar belakang (background)
         this.preloadNextImages(1);
@@ -86,32 +57,20 @@ class PawsAndPreferences {
         this.likeButton.addEventListener('click', () => this.handleLike());
         this.dislikeButton.addEventListener('click', () => this.handleDislike());
         
-        // Tambah event listener untuk super like button
-        if (this.superLikeButton) {
-            this.superLikeButton.addEventListener('click', () => this.handleSuperLike());
-        }
-        
-        // Meow button
-        if (this.meowBtn) {
-            this.meowBtn.addEventListener('click', () => this.playMeowSound());
-        }
-        
         document.addEventListener('keydown', (e) => {
             if (this.isAnimating || this.currentIndex >= this.cats.length) return;
-            switch (e.key.toLowerCase()) {
-                case 'arrowright':
+            switch (e.key) {
+                case 'ArrowRight':
                 case 'd':
+                case 'D':
                     e.preventDefault();
                     this.handleLike();
                     break;
-                case 'arrowleft':
+                case 'ArrowLeft':
                 case 'a':
+                case 'A':
                     e.preventDefault();
                     this.handleDislike();
-                    break;
-                case 's':
-                    e.preventDefault();
-                    this.handleSuperLike();
                     break;
             }
         });
@@ -153,17 +112,18 @@ class PawsAndPreferences {
             indicator.className = 'swipe-indicator';
             card.appendChild(indicator);
             
+            // Tutup loading overlay sebaik sahaja gambar pertama sedia
             this.hideLoadingOverlay();
         };
         img.onerror = () => {
             card.classList.remove('loading');
             card.classList.add('error');
             card.innerHTML = `
-                <div class="error-state" style="text-align: center; padding: 2rem; color: #9370DB;">
-                    <i class="fas fa-cat fa-4x mb-3" style="color: #FF69B4;"></i>
-                    <h3>${cat.name}</h3>
-                    <p>This cat is camera shy! 📷</p>
-                    <small>Try swiping anyway!</small>
+                <div class="error-state">
+                    <i class="fas fa-cat fa-4x mb-3"></i>
+                    <h3>Cat #${cat.id}</h3>
+                    <p>This cat is camera shy!</p>
+                    <small>Image failed to load</small>
                 </div>
             `;
             this.hideLoadingOverlay();
@@ -176,14 +136,11 @@ class PawsAndPreferences {
         overlay.className = 'card-overlay';
         overlay.innerHTML = `
             <div class="card-info">
-                <h3>${cat.name}</h3>
-                <p>${cat.age} • ${cat.tags.join(', ')}</p>
-                <div class="card-tags">
-                    ${cat.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-                </div>
+                <h3>Cat #${cat.id}</h3>
+                <p>Will this kitty capture your heart?</p>
                 <div class="swipe-hint">
-                    <span class="hint-left">👎 Nah</span>
-                    <span class="hint-right">Love! 👍</span>
+                    <span class="hint-left">👎 Dislike</span>
+                    <span class="hint-right">Like 👍</span>
                 </div>
             </div>
         `;
@@ -194,8 +151,8 @@ class PawsAndPreferences {
                 card.classList.add('swipe-right');
                 const indicator = card.querySelector('.swipe-indicator');
                 if (indicator) {
-                    indicator.style.background = 'linear-gradient(135deg, #FF69B4, #FF1493)';
-                    indicator.textContent = 'LOVE! ❤️';
+                    indicator.style.background = 'linear-gradient(135deg, #1dd1a1, #10ac84)';
+                    indicator.textContent = 'LIKE ❤️';
                     indicator.classList.add('visible');
                 }
                 setTimeout(() => this.handleLike(), 300);
@@ -204,8 +161,8 @@ class PawsAndPreferences {
                 card.classList.add('swipe-left');
                 const indicator = card.querySelector('.swipe-indicator');
                 if (indicator) {
-                    indicator.style.background = 'linear-gradient(135deg, #A9A9A9, #808080)';
-                    indicator.textContent = 'NAH 👎';
+                    indicator.style.background = 'linear-gradient(135deg, #ff4757, #ff3838)';
+                    indicator.textContent = 'DISLIKE 👎';
                     indicator.classList.add('visible');
                 }
                 setTimeout(() => this.handleDislike(), 300);
@@ -253,33 +210,7 @@ class PawsAndPreferences {
         }, 300);
     }
 
-    handleSuperLike() {
-        if (this.isAnimating || this.currentIndex >= this.cats.length) return;
-        this.isAnimating = true;
-        const currentCard = this.cardStack.querySelector('.cat-card');
-        
-        // Add special super like animation
-        currentCard?.classList.add('exit-right');
-        const indicator = currentCard?.querySelector('.swipe-indicator');
-        if (indicator) {
-            indicator.style.background = 'linear-gradient(135deg, #FFD700, #FFA500)';
-            indicator.textContent = 'PURRFECT! ⭐';
-            indicator.classList.add('visible');
-        }
-        
-        this.animateButton(this.superLikeButton);
-        setTimeout(() => {
-            const currentCat = this.cats[this.currentIndex];
-            currentCat.liked = true;
-            currentCat.superLiked = true;
-            this.superLikedCats.push(currentCat);
-            this.likedCats.push(currentCat);
-            this.moveToNextCard();
-        }, 300);
-    }
-
     animateButton(button) {
-        if (!button) return;
         button.classList.add('pulse');
         setTimeout(() => {
             button.classList.remove('pulse');
@@ -288,11 +219,6 @@ class PawsAndPreferences {
 
     moveToNextCard() {
         this.currentIndex++;
-        // Update swiped count
-        if (this.swipedCount) {
-            this.swipedCount.textContent = this.currentIndex;
-        }
-        
         if (this.currentIndex < this.cats.length) {
             setTimeout(() => {
                 this.isAnimating = false;
@@ -310,145 +236,132 @@ class PawsAndPreferences {
         const progress = ((this.currentIndex + 1) / this.config.totalCats) * 100;
         this.progressBar.style.width = `${progress}%`;
         this.progressText.textContent = `${this.currentIndex + 1}/${this.config.totalCats}`;
-        
-        // Update progress paw position
-        const progressPaw = document.querySelector('.progress-paw');
-        if (progressPaw) {
-            progressPaw.style.left = `calc(${progress}% - 15px)`;
-        }
     }
 
     showSummary() {
-        // Hide main interface elements
         this.cardStack.style.display = 'none';
         this.likeButton.style.display = 'none';
         this.dislikeButton.style.display = 'none';
-        if (this.superLikeButton) this.superLikeButton.style.display = 'none';
+        document.querySelector('.progress-container')?.classList.add('hidden');
+        document.querySelector('.instructions')?.classList.add('hidden');
+        document.querySelector('.keyboard-hint')?.classList.add('hidden');
         
-        // Hide instruction sections
-        const progressContainer = document.querySelector('.progress-container');
-        const instructions = document.querySelector('.instructions');
-        const keyboardHint = document.querySelector('.keyboard-hint');
-        
-        if (progressContainer) progressContainer.classList.add('hidden');
-        if (instructions) instructions.classList.add('hidden');
-        if (keyboardHint) keyboardHint.classList.add('hidden');
-        
-        // Show summary section
+        // TUNJUK SUMMARY
         this.summarySection.classList.remove('hidden');
+        this.summarySection.classList.add('active');
         
-        // Generate and display summary content
+        // GENERATE SUMMARY CONTENT
         this.generateSummaryHTML();
         
-        // Add confetti effect
+        // SETUP RESTART BUTTON
+        this.setupRestartButton();
+        
+        // ADD CONFETTI EFFECT
         this.createConfetti();
-        
-        // Setup event listeners for summary buttons
-        this.setupSummaryButtons();
-        
-        // Scroll to summary
-        setTimeout(() => {
-            this.summarySection.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
     }
 
+    // ==================== HANYA INI YANG DIUBAH ====================
     generateSummaryHTML() {
         const totalLikes = this.likedCats.length;
-        const totalSuperLikes = this.superLikedCats.length;
-        const matchRate = Math.round((totalLikes / this.config.totalCats) * 100);
+        const percentage = Math.round((totalLikes / this.config.totalCats) * 100);
         
+        // Determine cat personality
+        let personality = '';
+        if (percentage === 100) personality = 'The Ultimate Cat Lover 😻';
+        else if (percentage >= 80) personality = 'Cat Enthusiast 🐱';
+        else if (percentage >= 50) personality = 'Cat Admirer 🐾';
+        else if (percentage >= 20) personality = 'Selective Cat Friend 😼';
+        else if (percentage > 0) personality = 'Casual Cat Observer 👀';
+        else personality = 'Mysterious Cat Watcher 🐈‍⬛';
+        
+        // Determine message
         let message = '';
-        if (matchRate === 100) message = 'Purrfect! You loved them all! 😻🎉';
-        else if (matchRate >= 80) message = 'You really love cats! So many matches! 😻';
-        else if (matchRate >= 50) message = 'You found some purrfect favorites! 🐾';
-        else if (matchRate >= 20) message = 'A few kitties caught your eye! 👀';
-        else if (matchRate > 0) message = 'At least you found one you like! 😸';
+        if (percentage === 100) message = 'Purrfect! You loved every single kitty! 🎉';
+        else if (percentage >= 80) message = 'Wow! You really adore cats! 😻';
+        else if (percentage >= 50) message = 'You found some purrfect matches! 🐾';
+        else if (percentage >= 20) message = 'A few kitties caught your eye! 👀';
+        else if (percentage > 0) message = 'At least one kitty stole your heart! 😸';
         else message = 'No cats captured your heart this time... 😿';
         
-        // Determine cat personality based on choices
-        let personality = '';
-        if (totalSuperLikes > 5) personality = 'The Cat Enthusiast 🐱❤️';
-        else if (totalLikes > 8) personality = 'The Cat Lover 😻';
-        else if (totalLikes > 4) personality = 'The Cat Appreciator 🐾';
-        else if (totalLikes > 0) personality = 'The Selective Cat Friend 😼';
-        else personality = 'The Mysterious Cat Observer 🐈‍⬛';
+        // Generate cat names for liked cats
+        const catNames = [
+            "Whiskers", "Luna", "Simba", "Bella", "Oliver", "Chloe", 
+            "Leo", "Lily", "Milo", "Coco", "Max", "Lucy"
+        ];
+        
+        // Generate tags for each cat
+        const allTags = ["Fluffy", "Playful", "Cuddly", "Adventurous", "Gentle", 
+                        "Curious", "Sweet", "Energetic", "Calm", "Loving"];
 
-        const summaryHTML = `
+        const gridHTML = totalLikes > 0 
+            ? `<div class="liked-cats-grid">
+                ${this.likedCats.map((cat, index) => {
+                    // Assign random name and tags for each liked cat
+                    const catName = catNames[index % catNames.length];
+                    const tags = [allTags[index % allTags.length], allTags[(index + 2) % allTags.length]];
+                    
+                    return `
+                    <div class="liked-cat-card">
+                        <div class="liked-cat-image" style="background-image: url(${cat.imageUrl})">
+                            <div class="cat-number">${index + 1}</div>
+                        </div>
+                        <div class="liked-cat-info">
+                            <h5>${catName}</h5>
+                            <div class="liked-cat-tags">
+                                ${tags.map(tag => `<span class="liked-cat-tag">${tag}</span>`).join('')}
+                            </div>
+                            <p class="cat-age">Cat #${cat.id}</p>
+                        </div>
+                    </div>
+                    `;
+                }).join('')}
+               </div>`
+            : `<div class="no-likes">
+                <div class="sad-cat">
+                    <i class="fas fa-cat fa-3x"></i>
+                    <i class="fas fa-heart-broken fa-2x"></i>
+                </div>
+                <h4>No kitties caught your heart? 😿</h4>
+                <p>Don't worry! Maybe these kitties were too shy. Try again!</p>
+                <div class="cat-advice">
+                    <p><i class="fas fa-lightbulb"></i> <strong>Tip:</strong> Be more open to different types of cats!</p>
+                </div>
+               </div>`;
+
+        return `
             <div class="summary-content">
                 <div class="summary-header">
                     <div class="summary-icon">
                         <i class="fas fa-trophy"></i>
                         <div class="confetti-effect"></div>
                     </div>
-                    <h2>Meow-tastic! You've Met All The Kitties! 🎉</h2>
+                    <h2>Meow-tastic! 🎉</h2>
                     <p class="lead">You are: <span class="highlight">${personality}</span></p>
-                    <p class="lead">You swiped through <span class="highlight">${this.config.totalCats}</span> adorable kitties!</p>
-                    <p style="color: #9370DB; margin-bottom: 25px;">${message}</p>
-
+                    <p>${message}</p>
+                    
                     <div class="match-score">
                         <div class="score-card">
                             <i class="fas fa-heart"></i>
-                            <h3 id="like-count">${totalLikes}</h3>
+                            <h3>${totalLikes}</h3>
                             <p>Loved Kitties</p>
                         </div>
                         <div class="score-card">
-                            <i class="fas fa-star"></i>
-                            <h3 id="super-like-count">${totalSuperLikes}</h3>
-                            <p>Purrfect Matches</p>
+                            <i class="fas fa-paw"></i>
+                            <h3>${this.config.totalCats}</h3>
+                            <p>Total Kitties</p>
                         </div>
                         <div class="score-card">
-                            <i class="fas fa-paw"></i>
-                            <h3 id="match-score">${matchRate}%</h3>
+                            <i class="fas fa-chart-line"></i>
+                            <h3>${percentage}%</h3>
                             <p>Match Rate</p>
                         </div>
                     </div>
                 </div>
-
+                
                 <div class="summary-body">
-                    <h4><i class="fas fa-cat"></i> Your Purrfect Matches (${totalLikes})</h4>
+                    <h4><i class="fas fa-cat"></i> Your Favorite Kitties (${totalLikes})</h4>
+                    ${gridHTML}
                     
-                    ${totalLikes === 0 ? `
-                    <div class="no-likes">
-                        <div class="sad-cat">
-                            <i class="fas fa-cat fa-3x"></i>
-                            <i class="fas fa-heart-broken fa-2x"></i>
-                        </div>
-                        <h4>No kitties caught your heart? 😿</h4>
-                        <p>Don't worry! Maybe these kitties were too shy. Try again!</p>
-                        <div class="cat-advice">
-                            <p><i class="fas fa-lightbulb"></i> <strong>Tip:</strong> Try being more open to different types of cats next time!</p>
-                        </div>
-                    </div>
-                    ` : `
-                    <div class="liked-cats-grid" id="liked-cats-grid">
-                        ${this.likedCats.map((cat, index) => `
-                            <div class="liked-cat-card">
-                                <div class="liked-cat-image" style="background-image: url('${cat.imageUrl}')">
-                                    <div class="cat-number">${index + 1}</div>
-                                    ${cat.superLiked ? `
-                                    <div class="liked-cat-rating super-like" title="Purrfect Match!">
-                                        ⭐
-                                    </div>
-                                    ` : `
-                                    <div class="liked-cat-rating like" title="Loved!">
-                                        ❤️
-                                    </div>
-                                    `}
-                                </div>
-                                <div class="liked-cat-info">
-                                    <h5>${cat.name}</h5>
-                                    <div class="liked-cat-tags">
-                                        ${cat.tags.map(tag => 
-                                            `<span class="liked-cat-tag">${tag}</span>`
-                                        ).join('')}
-                                    </div>
-                                    <p class="cat-age">${cat.age}</p>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                    `}
-
                     <div class="summary-actions">
                         <button id="restart-btn" class="btn-restart">
                             <i class="fas fa-redo"></i>
@@ -456,155 +369,88 @@ class PawsAndPreferences {
                         </button>
                         <button id="share-btn" class="btn-share">
                             <i class="fas fa-share-alt"></i>
-                            Share My Cat Picks
+                            Share My Results
                         </button>
                     </div>
-
+                    
                     <div class="fun-facts">
-                        <h5><i class="fas fa-lightbulb"></i> Did You Know? Fun Cat Facts</h5>
+                        <h5><i class="fas fa-lightbulb"></i> Fun Cat Facts</h5>
                         <div class="facts-container">
                             <div class="fact">
                                 <i class="fas fa-paw"></i>
-                                <p>Cats have 230 bones (humans have 206)!</p>
-                            </div>
-                            <div class="fact">
-                                <i class="fas fa-brain"></i>
-                                <p>Cat brains are 90% similar to human brains!</p>
+                                <p>Cats sleep 12-16 hours a day!</p>
                             </div>
                             <div class="fact">
                                 <i class="fas fa-heart"></i>
-                                <p>A cat's heartbeat is 140-220 bpm (humans: 60-100)!</p>
+                                <p>A cat's heart beats twice as fast as a human's!</p>
+                            </div>
+                            <div class="fact">
+                                <i class="fas fa-brain"></i>
+                                <p>Cats have 32 muscles in each ear!</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         `;
-        
-        this.summarySection.innerHTML = summaryHTML;
     }
+    // ==================== HINGGA SINI ====================
 
-    setupSummaryButtons() {
-        const restartBtn = document.getElementById('restart-btn');
-        const shareBtn = document.getElementById('share-btn');
-        
-        if (restartBtn) {
-            restartBtn.addEventListener('click', () => this.restartApp());
-        }
-        
-        if (shareBtn) {
-            shareBtn.addEventListener('click', () => this.shareResults());
-        }
-    }
-
-    restartApp() {
-        // Reset semua state
-        this.currentIndex = 0;
-        this.likedCats = [];
-        this.superLikedCats = [];
-        this.isAnimating = false;
-        
-        // Reset UI - hide summary
-        this.summarySection.classList.add('hidden');
-        this.summarySection.innerHTML = '';
-        
-        // Show main interface elements
-        this.cardStack.style.display = '';
-        this.likeButton.style.display = '';
-        this.dislikeButton.style.display = '';
-        if (this.superLikeButton) this.superLikeButton.style.display = '';
-        
-        // Show instruction sections
-        const progressContainer = document.querySelector('.progress-container');
-        const instructions = document.querySelector('.instructions');
-        const keyboardHint = document.querySelector('.keyboard-hint');
-        
-        if (progressContainer) progressContainer.classList.remove('hidden');
-        if (instructions) instructions.classList.remove('hidden');
-        if (keyboardHint) keyboardHint.classList.remove('hidden');
-        
-        // Reset progress
-        this.updateProgress();
-        
-        // Reset swiped count
-        if (this.swipedCount) {
-            this.swipedCount.textContent = '0';
-        }
-        
-        // Generate kucing baru
-        this.initializeCats();
-        
-        // Tunjukkan kad pertama
-        setTimeout(() => {
-            this.showCurrentCard();
+    setupRestartButton() {
+        this.restartButton = document.getElementById('restart-btn');
+        this.restartButton?.addEventListener('click', () => {
+            // Hide summary
+            this.summarySection.classList.add('hidden');
+            this.summarySection.classList.remove('active');
+            this.summarySection.innerHTML = '';
             
-            // Scroll back to top
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }, 300);
-    }
-
-    shareResults() {
-        const totalLikes = this.likedCats.length;
-        const catNames = this.likedCats.slice(0, 3).map(cat => cat.name).join(', ');
-        
-        const shareText = `🐱 I found ${totalLikes} purrfect cats on MeowMatch! ` +
-                         `${totalLikes > 0 ? `My favorites: ${catNames}${totalLikes > 3 ? ' and more!' : ''}` : ''} ` +
-                         `Find your purrfect match at: ${window.location.href}`;
-        
-        if (navigator.share) {
-            navigator.share({
-                title: 'My MeowMatch Results',
-                text: shareText,
-                url: window.location.href
-            }).catch(err => {
-                this.copyToClipboard(shareText);
-            });
-        } else {
-            this.copyToClipboard(shareText);
-        }
-    }
-
-    copyToClipboard(text) {
-        navigator.clipboard.writeText(text).then(() => {
-            this.showNotification('Results copied to clipboard! 📋 Share with your friends!');
-        }).catch(err => {
-            console.error('Failed to copy: ', err);
-            // Fallback untuk browser lama
-            const textArea = document.createElement('textarea');
-            textArea.value = text;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-            this.showNotification('Results copied! 📋');
+            // Show main interface
+            this.cardStack.style.display = '';
+            this.likeButton.style.display = '';
+            this.dislikeButton.style.display = '';
+            document.querySelector('.progress-container')?.classList.remove('hidden');
+            document.querySelector('.instructions')?.classList.remove('hidden');
+            document.querySelector('.keyboard-hint')?.classList.remove('hidden');
+            
+            // Reset game state
+            this.currentIndex = 0;
+            this.likedCats = [];
+            this.isAnimating = false;
+            
+            // Reset progress
+            this.updateProgress();
+            
+            // Generate new cats
+            this.initializeCats();
+            
+            // Show first card
+            setTimeout(() => {
+                this.showCurrentCard();
+                
+                // Scroll back to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 300);
         });
-    }
-
-    showNotification(message) {
-        const notification = document.createElement('div');
-        notification.className = 'notification';
-        notification.textContent = message;
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: linear-gradient(135deg, #FF69B4, #9370DB);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-            z-index: 10000;
-            animation: slideInRight 0.3s ease;
-            max-width: 300px;
-            font-weight: 600;
-        `;
         
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.style.animation = 'slideInRight 0.3s ease reverse forwards';
-            setTimeout(() => notification.remove(), 300);
-        }, 3000);
+        // Add share button functionality
+        const shareBtn = document.getElementById('share-btn');
+        if (shareBtn) {
+            shareBtn.addEventListener('click', () => {
+                const shareText = `🐱 I found ${this.likedCats.length} purrfect cats on MeowMatch! ` +
+                                 `Try it at: ${window.location.href}`;
+                
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'My MeowMatch Results',
+                        text: shareText,
+                        url: window.location.href
+                    });
+                } else {
+                    navigator.clipboard.writeText(shareText);
+                    alert('Results copied to clipboard! 📋');
+                }
+            });
+        }
     }
 
     createConfetti() {
@@ -613,69 +459,24 @@ class PawsAndPreferences {
         
         container.innerHTML = '';
         
-        const colors = ['#FF69B4', '#9370DB', '#FFD700', '#ADD8E6', '#98FB98'];
-        const confettiCount = 80;
+        const colors = ['#FF69B4', '#9370DB', '#FFD700', '#ADD8E6'];
         
-        for (let i = 0; i < confettiCount; i++) {
+        for (let i = 0; i < 50; i++) {
             const confetti = document.createElement('div');
-            const color = colors[Math.floor(Math.random() * colors.length)];
-            const size = Math.random() * 10 + 5;
-            const startX = Math.random() * 100;
-            const duration = Math.random() * 3 + 2;
-            
-            confetti.style.cssText = `
-                position: fixed;
-                width: ${size}px;
-                height: ${size}px;
-                background-color: ${color};
-                border-radius: ${Math.random() > 0.5 ? '50%' : '0'};
-                top: -10px;
-                left: ${startX}vw;
-                opacity: 0.8;
-                z-index: 9998;
-                animation: floatBubble ${duration}s linear forwards;
-            `;
+            confetti.className = 'confetti';
+            confetti.style.left = `${Math.random() * 100}vw`;
+            confetti.style.top = '-10px';
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.width = `${Math.random() * 10 + 5}px`;
+            confetti.style.height = confetti.style.width;
+            confetti.style.opacity = '0.8';
+            confetti.style.animation = `floatBubble ${Math.random() * 3 + 2}s linear forwards`;
             
             container.appendChild(confetti);
             
-            // Remove after animation
             setTimeout(() => {
                 confetti.remove();
-            }, duration * 1000);
-        }
-    }
-
-    playMeowSound() {
-        // Create meow sound effect
-        try {
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.3);
-            
-            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-            
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.3);
-            
-            // Visual feedback
-            if (this.meowBtn) {
-                this.meowBtn.classList.add('pulse');
-                setTimeout(() => this.meowBtn.classList.remove('pulse'), 300);
-            }
-        } catch (e) {
-            console.log("Meow sound failed to play: ", e);
-            // Simple fallback
-            if (this.meowBtn) {
-                this.meowBtn.classList.add('pulse');
-                setTimeout(() => this.meowBtn.classList.remove('pulse'), 300);
-            }
+            }, 5000);
         }
     }
 }
