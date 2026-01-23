@@ -1038,5 +1038,68 @@ body {
     display: block !important;
   }
 }
+/* ===== Cute Theme Override ===== */
+
+body {
+  background: linear-gradient(135deg, #fff1f6, #e0f2fe);
+}
+
+.header {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.header .logo {
+  background: linear-gradient(135deg, #ff8fab, #ffb3c6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.header .tagline {
+  color: #6b7280;
+}
+
+.header .subtitle {
+  color: #9ca3af;
+}
+
+.main-content {
+  background: #ffffff;
+  border-radius: 32px;
+}
+
+.progress-container .progress .progress-bar {
+  background: linear-gradient(135deg, #ff8fab, #ffd6e0);
+}
+
+.btn-like {
+  background: linear-gradient(135deg, #ff8fab, #ffb3c6);
+}
+
+.btn-dislike {
+  background: linear-gradient(135deg, #a5b4fc, #c7d2fe);
+}
+
+.btn-action {
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+.instructions {
+  background: #fff7fb;
+}
+
+.footer {
+  color: #9ca3af;
+}
+
+.footer a {
+  color: #ff8fab;
+}
+
+/* Card overlay text softer */
+.card-info h3 {
+  background: linear-gradient(135deg, #ff8fab, #ffb3c6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
 
 /*# sourceMappingURL=main.css.map */
