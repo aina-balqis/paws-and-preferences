@@ -15,7 +15,7 @@ class PawsAndPreferences {
         this.restartButton = null;
         
         this.initializeDOM();
-        this.initializeCats();
+        this.initializeCats(); // 
         this.setupEventListeners();
         
         this.showCurrentCard();
@@ -29,20 +29,83 @@ class PawsAndPreferences {
         this.progressBar = document.getElementById('progress-bar');
         this.progressText = document.getElementById('progress-text');
         this.loadingOverlay = document.getElementById('loading-overlay');
-        this.swipedCount = document.getElementById('swiped-count'); // TAMBAH INI
-        this.catCount = document.getElementById('cat-count'); // TAMBAH INI
+        this.swipedCount = document.getElementById('swiped-count');
+        this.catCount = document.getElementById('cat-count');
     }
 
+    // ==================== updated ====================
     initializeCats() {
+        // Name
+        const catNames = [
+            "Whiskers", "Luna", "Simba", "Bella", "Oliver", "Chloe", 
+            "Leo", "Lily", "Milo", "Coco", "Max", "Lucy",
+            "Charlie", "Daisy", "Jack", "Zoe", "Oscar", "Molly"
+        ];
+        
+        // Personality untuk setiap kucing
+        const personalities = [
+            "Playful & Curious 😸", "Calm & Cuddly 🥰", "Adventurous & Brave 🐾",
+            "Gentle & Sweet 💖", "Energetic & Fun ⚡", "Smart & Clever 🧠",
+            "Loving & Affectionate ❤️", "Independent & Mysterious 🐈‍⬛",
+            "Fluffy & Soft ☁️", "Mischievous & Funny 😹", "Quiet & Observant 👀",
+            "Social & Friendly 👫", "Loyal & Protective 🛡️", "Playful & Goofy 🤪",
+            "Gentle & Patient 🕊️", "Bold & Confident 💪", "Sweet & Shy 🌸",
+            "Curious & Explorer 🧭"
+        ];
+        
+        // Umur kucing
+        const ages = ["Kitten", "Young Adult", "Adult", "Senior"];
+        
+        // Jenis kucing
+        const breeds = ["Tabby", "Siamese", "Persian", "Maine Coon", "Bengal", 
+                       "British Shorthair", "Ragdoll", "Sphynx", "Scottish Fold"];
+        
         this.cats = Array.from({ length: this.config.totalCats }, (_, index) => ({
             id: index + 1,
+            name: catNames[index % catNames.length],
+            personality: personalities[index % personalities.length],
+            age: ages[Math.floor(Math.random() * ages.length)],
+            breed: breeds[Math.floor(Math.random() * breeds.length)],
             imageUrl: `${this.config.apiBaseUrl}?width=350&height=450&random=${Date.now() + index}`,
             liked: false,
-            viewed: false
+            viewed: false,
+            tags: this.generateTags(personalities[index % personalities.length])
         }));
+        
+        // Update cat count
+        if (this.catCount) {
+            this.catCount.textContent = this.config.totalCats;
+        }
         
         this.preloadNextImages(1);
     }
+    
+    // Function untuk generate tags berdasarkan personality
+    generateTags(personality) {
+        const tagMap = {
+            "Playful & Curious 😸": ["Playful", "Curious", "Energetic"],
+            "Calm & Cuddly 🥰": ["Calm", "Cuddly", "Gentle"],
+            "Adventurous & Brave 🐾": ["Adventurous", "Brave", "Explorer"],
+            "Gentle & Sweet 💖": ["Gentle", "Sweet", "Loving"],
+            "Energetic & Fun ⚡": ["Energetic", "Fun", "Playful"],
+            "Smart & Clever 🧠": ["Smart", "Clever", "Intelligent"],
+            "Loving & Affectionate ❤️": ["Loving", "Affectionate", "Cuddly"],
+            "Independent & Mysterious 🐈‍⬛": ["Independent", "Mysterious", "Quiet"],
+            "Fluffy & Soft ☁️": ["Fluffy", "Soft", "Cute"],
+            "Mischievous & Funny 😹": ["Mischievous", "Funny", "Playful"],
+            "Quiet & Observant 👀": ["Quiet", "Observant", "Calm"],
+            "Social & Friendly 👫": ["Social", "Friendly", "Playful"],
+            "Loyal & Protective 🛡️": ["Loyal", "Protective", "Brave"],
+            "Playful & Goofy 🤪": ["Playful", "Goofy", "Funny"],
+            "Gentle & Patient 🕊️": ["Gentle", "Patient", "Calm"],
+            "Bold & Confident 💪": ["Bold", "Confident", "Brave"],
+            "Sweet & Shy 🌸": ["Sweet", "Shy", "Gentle"],
+            "Curious & Explorer 🧭": ["Curious", "Explorer", "Adventurous"]
+        };
+        
+        return tagMap[personality] || ["Adorable", "Cute", "Lovable"];
+    }
+    // ==================== cat end ====================
 
     async preloadNextImages(startIndex) {
         const nextImages = this.cats.slice(startIndex, startIndex + 3).map(cat => cat.imageUrl);
@@ -94,10 +157,11 @@ class PawsAndPreferences {
         }
         const currentCat = this.cats[this.currentIndex];
         currentCat.viewed = true;
-        this.createCard(currentCat);
+        this.createCard(currentCat); // ✅ FUNCTION INI AKAN DIUBAH
         this.updateProgress();
     }
 
+    // ==================== UPDATED ====================
     createCard(cat) {
         this.cardStack.innerHTML = '';
         const card = document.createElement('div');
@@ -123,11 +187,11 @@ class PawsAndPreferences {
             card.classList.remove('loading');
             card.classList.add('error');
             card.innerHTML = `
-                <div class="error-state">
-                    <i class="fas fa-cat fa-4x mb-3"></i>
-                    <h3>Cat #${cat.id}</h3>
-                    <p>This cat is camera shy!</p>
-                    <small>Image failed to load</small>
+                <div class="error-state" style="text-align: center; padding: 2rem; color: #9370DB;">
+                    <i class="fas fa-cat fa-4x mb-3" style="color: #FF69B4;"></i>
+                    <h3>${cat.name}</h3>
+                    <p>${cat.personality}</p>
+                    <small>This cat is camera shy! Try swiping anyway!</small>
                 </div>
             `;
             this.hideLoadingOverlay();
@@ -136,19 +200,25 @@ class PawsAndPreferences {
         card.classList.add('loading');
         img.src = cat.imageUrl;
 
+        // ==========  NAMA & PERSONALITY ==========
         const overlay = document.createElement('div');
         overlay.className = 'card-overlay';
         overlay.innerHTML = `
             <div class="card-info">
-                <h3>Cat #${cat.id}</h3>
-                <p>Will this kitty capture your heart?</p>
+                <h3>${cat.name}</h3>
+                <p>${cat.age} • ${cat.breed}</p>
+                <p><i class="fas fa-heart" style="color: #FF69B4;"></i> ${cat.personality}</p>
+                <div class="card-tags">
+                    ${cat.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                </div>
                 <div class="swipe-hint">
-                    <span class="hint-left">👎 Dislike</span>
-                    <span class="hint-right">Like 👍</span>
+                    <span class="hint-left">👎 Nah</span>
+                    <span class="hint-right">Love! 👍</span>
                 </div>
             </div>
         `;
         card.appendChild(overlay);
+        // ============================================================
 
         this.swipeManager = initSwipe(card, {
             onLike: () => {
@@ -178,6 +248,7 @@ class PawsAndPreferences {
             this.preloadNextImages(this.currentIndex + 1);
         }
     }
+    // ==================== END ====================
 
     hideLoadingOverlay() {
         if (this.loadingOverlay && this.loadingOverlay.style.display !== 'none') {
@@ -289,6 +360,7 @@ class PawsAndPreferences {
         }, 100);
     }
 
+    // ==================== SUMMARY ====================
     generateSummaryHTML() {
         const totalLikes = this.likedCats.length;
         const percentage = Math.round((totalLikes / this.config.totalCats) * 100);
@@ -311,33 +383,22 @@ class PawsAndPreferences {
         else if (percentage > 0) message = 'At least one kitty stole your heart! 😸';
         else message = 'No cats captured your heart this time... 😿';
         
-        // Generate cat names for liked cats
-        const catNames = [
-            "Whiskers", "Luna", "Simba", "Bella", "Oliver", "Chloe", 
-            "Leo", "Lily", "Milo", "Coco", "Max", "Lucy"
-        ];
-        
-        // Generate tags for each cat
-        const allTags = ["Fluffy", "Playful", "Cuddly", "Adventurous", "Gentle", 
-                        "Curious", "Sweet", "Energetic", "Calm", "Loving"];
-
         const gridHTML = totalLikes > 0 
             ? `<div class="liked-cats-grid">
                 ${this.likedCats.map((cat, index) => {
-                    const catName = catNames[index % catNames.length];
-                    const tags = [allTags[index % allTags.length], allTags[(index + 2) % allTags.length]];
-                    
+                    // 
                     return `
                     <div class="liked-cat-card">
                         <div class="liked-cat-image" style="background-image: url(${cat.imageUrl})">
                             <div class="cat-number">${index + 1}</div>
                         </div>
                         <div class="liked-cat-info">
-                            <h5>${catName}</h5>
+                            <h5>${cat.name}</h5>
                             <div class="liked-cat-tags">
-                                ${tags.map(tag => `<span class="liked-cat-tag">${tag}</span>`).join('')}
+                                ${cat.tags.map(tag => `<span class="liked-cat-tag">${tag}</span>`).join('')}
                             </div>
-                            <p class="cat-age">Cat #${cat.id}</p>
+                            <p class="cat-age">${cat.age} • ${cat.breed}</p>
+                            <p class="cat-personality">${cat.personality}</p>
                         </div>
                     </div>
                     `;
@@ -421,6 +482,7 @@ class PawsAndPreferences {
             </div>
         `;
     }
+    // ====================END ====================
 
     setupSummaryButtons() {
         const restartBtn = document.getElementById('restart-btn');
@@ -472,7 +534,7 @@ class PawsAndPreferences {
         // Reset progress
         this.updateProgress();
         
-        // Generate new cats
+        // Generate new cats (dengan nama & personality baru)
         this.initializeCats();
         
         // Show first card
@@ -486,18 +548,15 @@ class PawsAndPreferences {
 
     shareResults() {
         const totalLikes = this.likedCats.length;
-        const catNames = this.likedCats.slice(0, 3).map((cat, index) => {
-            const names = ["Whiskers", "Luna", "Simba", "Bella", "Oliver", "Chloe"];
-            return names[index % names.length];
-        }).join(', ');
+        const catNames = this.likedCats.slice(0, 3).map(cat => cat.name).join(', ');
         
-        const shareText = `🐱 I found ${totalLikes} purrfect cats on MeowMatch! ` +
+        const shareText = `🐱 I found ${totalLikes} purrfect cats on Paws & Preferences! ` +
                          `${totalLikes > 0 ? `My favorites: ${catNames}${totalLikes > 3 ? ' and more!' : ''}` : ''} ` +
                          `Try it at: ${window.location.href}`;
         
         if (navigator.share) {
             navigator.share({
-                title: 'My MeowMatch Results',
+                title: 'My Paws & Preferences Results',
                 text: shareText,
                 url: window.location.href
             });
