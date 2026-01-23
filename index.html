@@ -1,102 +1,208 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Paws & Preferences 🐾 | Find Your Meow-tch</title>
-
-  <!-- Bootstrap -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="dist/main.css">
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐱</text></svg>">
-
-  <meta name="description" content="Swipe through adorable cats and discover your favourite kitty companion." />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeowMatch 🐾 - Find Your Purrfect Feline Friend!</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts - Comel! -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Comic+Neue:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="dist/main.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐱</text></svg>">
+    
+    <!-- Meta tags -->
+    <meta name="description" content="MeowMatch: Tinder-style cat matching app! Swipe right to adopt, left to meh-tch. Find your furry soulmate today!">
+    <meta property="og:title" content="MeowMatch - Find Your Purrfect Cat Match!">
+    <meta property="og:description" content="Swipe right 😻, left 🙀. Discover adorable kitties waiting for love!">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1514888286974-6d03bdeacba8?w=1200&h=630&fit=crop">
 </head>
-
 <body>
-  <!-- Loading -->
-  <div id="loading-overlay" class="loading-overlay">
-    <div class="spinner"></div>
-    <p class="mt-3">Finding cute cats for you… 🐾</p>
-  </div>
+    <!-- Cat Ears Decoration -->
+    <div class="cat-ears">
+        <div class="ear left-ear"></div>
+        <div class="ear right-ear"></div>
+    </div>
 
-  <div class="container">
-
-    <!-- Header -->
-    <header class="header text-center py-4">
-      <h1 class="logo">
-        <i class="fas fa-paw"></i>
-        Paws & Preferences
-      </h1>
-      <p class="tagline">Swipe to discover your purr-fect match</p>
-      <p class="subtitle">Tap ❤️ if you like • ❌ if you don’t</p>
-    </header>
-
-    <main class="main-content">
-
-      <!-- Progress -->
-      <div class="progress-container mb-4">
-        <div class="progress">
-          <div id="progress-bar" class="progress-bar" role="progressbar"></div>
+    <!-- Loading Screen -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="cat-loader">
+            <div class="cat-face">
+                <div class="ear ear-left"></div>
+                <div class="ear ear-right"></div>
+                <div class="eye eye-left"></div>
+                <div class="eye eye-right"></div>
+                <div class="nose"></div>
+                <div class="mouth"></div>
+            </div>
+            <p class="mt-4 loading-text">Loading purrfect kitties... <span class="dot-animation">🐾</span></p>
         </div>
-        <div class="progress-info">
-          <span class="progress-text">Cats discovered</span>
-          <span id="progress-text" class="progress-percentage">0 / 12</span>
-        </div>
-      </div>
+    </div>
 
-      <!-- Card Stack -->
-      <div id="card-stack" class="card-stack"></div>
+    <div class="container">
+        <!-- Header -->
+        <header class="header text-center py-4">
+            <div class="logo-container">
+                <div class="paw-prints">
+                    <span>🐾</span>
+                    <span>🐾</span>
+                    <span>🐾</span>
+                </div>
+                <h1 class="logo">
+                    <i class="fas fa-paw"></i>
+                    MeowMatch
+                </h1>
+                <div class="paw-prints">
+                    <span>🐾</span>
+                    <span>🐾</span>
+                    <span>🐾</span>
+                </div>
+            </div>
+            <p class="tagline">Find your purrfect feline friend! 😻</p>
+            <p class="subtitle">Swipe right to <span class="heart-text">love</span>, left to <span class="meh-text">"meh"</span></p>
+            <div class="cat-counter">
+                <i class="fas fa-cat"></i>
+                <span id="cat-count">12</span> adorable kitties waiting
+            </div>
+        </header>
 
-      <!-- Buttons -->
-      <div class="action-buttons">
-        <button id="dislike-btn" class="btn-action btn-dislike" aria-label="Dislike">
-          <i class="fas fa-times"></i>
-        </button>
-        <button id="like-btn" class="btn-action btn-like" aria-label="Like">
-          <i class="fas fa-heart"></i>
-        </button>
-      </div>
+        <main class="main-content">
+            <!-- Progress Indicator -->
+            <div class="progress-container mb-4">
+                <div class="progress-label">
+                    <i class="fas fa-fish"></i>
+                    <span>Your cat discovery journey</span>
+                </div>
+                <div class="progress">
+                    <div id="progress-bar" class="progress-bar" role="progressbar">
+                        <div class="progress-paw"><i class="fas fa-paw"></i></div>
+                    </div>
+                </div>
+                <div class="progress-info">
+                    <span class="progress-text">Swipered <span id="swiped-count">0</span> kitties</span>
+                    <span id="progress-text" class="progress-percentage">😺 0/12</span>
+                </div>
+            </div>
 
-      <!-- Hint -->
-      <div class="keyboard-hint">
-        <div class="key key-dislike">A</div>
-        <span>or swipe left</span>
-        <div class="key key-like">D</div>
-        <span>or swipe right</span>
-      </div>
+            <!-- Card Stack -->
+            <div id="card-stack" class="card-stack">
+                <div class="card-placeholder">
+                    <div class="placeholder-cat">
+                        <div class="tail"></div>
+                        <div class="body"></div>
+                        <div class="head"></div>
+                    </div>
+                    <p>Get ready to meet adorable kitties!</p>
+                </div>
+            </div>
 
-      <!-- Instructions -->
-      <div class="instructions">
-        <p class="instruction-text">
-          Swipe the card or tap the buttons below
-        </p>
-      </div>
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button id="dislike-btn" class="btn-action btn-dislike" aria-label="Not this kitty">
+                    <i class="fas fa-times"></i>
+                    <span class="btn-label">Nah</span>
+                </button>
+                
+                <button id="super-like-btn" class="btn-action btn-super-like" aria-label="Super like this cat">
+                    <i class="fas fa-star"></i>
+                    <span class="btn-label">Purrfect!</span>
+                </button>
+                
+                <button id="like-btn" class="btn-action btn-like" aria-label="Like this cat">
+                    <i class="fas fa-heart"></i>
+                    <span class="btn-label">Love!</span>
+                </button>
+            </div>
 
-      <!-- Summary -->
-      <div id="summary" class="summary"></div>
+            <!-- Instructions -->
+            <div class="instructions">
+                <div class="instruction-card">
+                    <div class="instruction-icon">
+                        <i class="fas fa-hand-point-up"></i>
+                    </div>
+                    <div class="instruction-content">
+                        <h5>How to play with MeowMatch:</h5>
+                        <div class="instruction-steps">
+                            <div class="step">
+                                <span class="step-number">1</span>
+                                <span>Swipe <strong class="text-dislike">left</strong> for "Not my cat" 🙀</span>
+                            </div>
+                            <div class="step">
+                                <span class="step-number">2</span>
+                                <span>Swipe <strong class="text-like">right</strong> for "My future cat!" 😻</span>
+                            </div>
+                            <div class="step">
+                                <span class="step-number">3</span>
+                                <span>Tap <i class="fas fa-star star-icon"></i> for "PURRFECT!" 🌟</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="keyboard-hint">
+                    <div class="key-hint">
+                        <kbd>A</kbd> or <kbd>←</kbd> for Nah
+                    </div>
+                    <div class="key-hint">
+                        <kbd>S</kbd> for Super Like
+                    </div>
+                    <div class="key-hint">
+                        <kbd>D</kbd> or <kbd>→</kbd> for Love!
+                    </div>
+                </div>
+            </div>
 
-    </main>
+            <!-- Summary Section -->
+            <div id="summary" class="summary">
+                <!-- Content akan diisi oleh JavaScript -->
+            </div>
+        </main>
 
-    <!-- Footer -->
-    <footer class="footer">
-  <p>
-    Made with love for cat lovers 💕🐾 <br>
-    Crafted by <strong>Aina</strong> • Powered by adorable chaos from
-    <a href="https://cataas.com/" target="_blank">Cataas</a>
-  </p>
-</footer>
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h6><i class="fas fa-heart-paw"></i> Made with love for cat lovers</h6>
+                    <p>Every like brings a kitty closer to finding their forever home! 🏡</p>
+                </div>
+                
+                <div class="footer-divider">
+                    <div class="whisker"></div>
+                    <i class="fas fa-paw"></i>
+                    <div class="whisker"></div>
+                </div>
+                
+                <div class="tech-stack">
+                    <span class="tech-badge"><i class="fab fa-js-square"></i> TypeScript</span>
+                    <span class="tech-badge"><i class="fas fa-paint-brush"></i> SCSS</span>
+                    <span class="tech-badge"><i class="fas fa-mobile-alt"></i> Mobile-First</span>
+                    <span class="tech-badge"><i class="fas fa-cat"></i> Cat-Powered</span>
+                </div>
+                
+                <p class="footer-note">
+                    Images from <a href="https://cataas.com/" target="_blank" rel="noopener">Cataas.com</a> •
+                    <i class="fas fa-code"></i> Open Source •
+                    <button id="meow-btn" class="btn-meow">
+                        <i class="fas fa-volume-up"></i> Meow!
+                    </button>
+                </p>
+            </div>
+        </footer>
+    </div>
 
+    <!-- Confetti Effect Container -->
+    <div id="confetti-container"></div>
 
-  </div>
-
-  <script type="module" src="dist/main.js"></script>
+    <!-- JavaScript -->
+    <script type="module" src="dist/main.js"></script>
 </body>
 </html>
