@@ -1,4 +1,4 @@
-btw ni main.js aku: import { initSwipe } from './swipe.js';
+import { initSwipe } from './swipe.js';
 
 class PawsAndPreferences {
     constructor() {
@@ -304,4 +304,4 @@ class PawsAndPreferences {
 document.addEventListener('DOMContentLoaded', () => {
     new PawsAndPreferences();
 });
-tolong bagi full code yg dah diupdate
+
