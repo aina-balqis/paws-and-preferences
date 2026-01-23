@@ -18,7 +18,6 @@ class PawsAndPreferences {
         this.initializeCats();
         this.setupEventListeners();
         
-        // Terus tunjuk kad pertama tanpa tunggu semua preloading selesai
         this.showCurrentCard();
     }
 
@@ -30,18 +29,18 @@ class PawsAndPreferences {
         this.progressBar = document.getElementById('progress-bar');
         this.progressText = document.getElementById('progress-text');
         this.loadingOverlay = document.getElementById('loading-overlay');
+        this.swipedCount = document.getElementById('swiped-count'); // TAMBAH INI
+        this.catCount = document.getElementById('cat-count'); // TAMBAH INI
     }
 
     initializeCats() {
         this.cats = Array.from({ length: this.config.totalCats }, (_, index) => ({
             id: index + 1,
-            // Gunakan saiz yang lebih kecil untuk pemuatan lebih pantas
             imageUrl: `${this.config.apiBaseUrl}?width=350&height=450&random=${Date.now() + index}`,
             liked: false,
             viewed: false
         }));
         
-        // Preload gambar seterusnya di latar belakang (background)
         this.preloadNextImages(1);
     }
 
@@ -56,6 +55,12 @@ class PawsAndPreferences {
     setupEventListeners() {
         this.likeButton.addEventListener('click', () => this.handleLike());
         this.dislikeButton.addEventListener('click', () => this.handleDislike());
+        
+        // Meow button
+        const meowBtn = document.getElementById('meow-btn');
+        if (meowBtn) {
+            meowBtn.addEventListener('click', () => this.playMeowSound());
+        }
         
         document.addEventListener('keydown', (e) => {
             if (this.isAnimating || this.currentIndex >= this.cats.length) return;
@@ -112,7 +117,6 @@ class PawsAndPreferences {
             indicator.className = 'swipe-indicator';
             card.appendChild(indicator);
             
-            // Tutup loading overlay sebaik sahaja gambar pertama sedia
             this.hideLoadingOverlay();
         };
         img.onerror = () => {
@@ -170,7 +174,6 @@ class PawsAndPreferences {
         });
         this.cardStack.appendChild(card);
 
-        // Preload gambar seterusnya secara senyap
         if (this.currentIndex + 1 < this.cats.length) {
             this.preloadNextImages(this.currentIndex + 1);
         }
@@ -219,6 +222,12 @@ class PawsAndPreferences {
 
     moveToNextCard() {
         this.currentIndex++;
+        
+        // Update swiped count
+        if (this.swipedCount) {
+            this.swipedCount.textContent = this.currentIndex;
+        }
+        
         if (this.currentIndex < this.cats.length) {
             setTimeout(() => {
                 this.isAnimating = false;
@@ -239,29 +248,47 @@ class PawsAndPreferences {
     }
 
     showSummary() {
+        // Debug log
+        console.log("🎉 Showing summary!");
+        console.log("Liked cats:", this.likedCats.length);
+        
+        // Hide main interface
         this.cardStack.style.display = 'none';
         this.likeButton.style.display = 'none';
         this.dislikeButton.style.display = 'none';
-        document.querySelector('.progress-container')?.classList.add('hidden');
-        document.querySelector('.instructions')?.classList.add('hidden');
-        document.querySelector('.keyboard-hint')?.classList.add('hidden');
         
-        // TUNJUK SUMMARY
+        // Hide instruction sections - FIX: Use correct selectors
+        const elementsToHide = [
+            '.progress-container',
+            '.instructions', 
+            '.keyboard-hint'
+        ];
+        
+        elementsToHide.forEach(selector => {
+            const element = document.querySelector(selector);
+            if (element) {
+                element.classList.add('hidden');
+            }
+        });
+        
+        // Show summary - FIX: Remove 'active' class yang tak perlu
         this.summarySection.classList.remove('hidden');
-        this.summarySection.classList.add('active');
         
-        // GENERATE SUMMARY CONTENT
-       this.summarySection.innerHTML = this.generateSummaryHTML();
-
+        // Generate and display summary content
+        this.summarySection.innerHTML = this.generateSummaryHTML();
         
-        // SETUP RESTART BUTTON
-        this.setupRestartButton();
+        // Setup event listeners for summary buttons
+        this.setupSummaryButtons();
         
-        // ADD CONFETTI EFFECT
+        // Add confetti effect
         this.createConfetti();
+        
+        // Scroll to summary
+        setTimeout(() => {
+            this.summarySection.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
     }
 
-    // ==================== HANYA INI YANG DIUBAH ====================
     generateSummaryHTML() {
         const totalLikes = this.likedCats.length;
         const percentage = Math.round((totalLikes / this.config.totalCats) * 100);
@@ -297,7 +324,6 @@ class PawsAndPreferences {
         const gridHTML = totalLikes > 0 
             ? `<div class="liked-cats-grid">
                 ${this.likedCats.map((cat, index) => {
-                    // Assign random name and tags for each liked cat
                     const catName = catNames[index % catNames.length];
                     const tags = [allTags[index % allTags.length], allTags[(index + 2) % allTags.length]];
                     
@@ -395,62 +421,89 @@ class PawsAndPreferences {
             </div>
         `;
     }
-    // ==================== HINGGA SINI ====================
 
-    setupRestartButton() {
-        this.restartButton = document.getElementById('restart-btn');
-        this.restartButton?.addEventListener('click', () => {
-            // Hide summary
-            this.summarySection.classList.add('hidden');
-            this.summarySection.classList.remove('active');
-            this.summarySection.innerHTML = '';
-            
-            // Show main interface
-            this.cardStack.style.display = '';
-            this.likeButton.style.display = '';
-            this.dislikeButton.style.display = '';
-            document.querySelector('.progress-container')?.classList.remove('hidden');
-            document.querySelector('.instructions')?.classList.remove('hidden');
-            document.querySelector('.keyboard-hint')?.classList.remove('hidden');
-            
-            // Reset game state
-            this.currentIndex = 0;
-            this.likedCats = [];
-            this.isAnimating = false;
-            
-            // Reset progress
-            this.updateProgress();
-            
-            // Generate new cats
-            this.initializeCats();
-            
-            // Show first card
-            setTimeout(() => {
-                this.showCurrentCard();
-                
-                // Scroll back to top
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }, 300);
+    setupSummaryButtons() {
+        const restartBtn = document.getElementById('restart-btn');
+        const shareBtn = document.getElementById('share-btn');
+        
+        if (restartBtn) {
+            restartBtn.addEventListener('click', () => this.restartApp());
+        }
+        
+        if (shareBtn) {
+            shareBtn.addEventListener('click', () => this.shareResults());
+        }
+    }
+
+    restartApp() {
+        // Hide summary
+        this.summarySection.classList.add('hidden');
+        this.summarySection.innerHTML = '';
+        
+        // Show main interface
+        this.cardStack.style.display = '';
+        this.likeButton.style.display = '';
+        this.dislikeButton.style.display = '';
+        
+        // Show instruction sections
+        const elementsToShow = [
+            '.progress-container',
+            '.instructions', 
+            '.keyboard-hint'
+        ];
+        
+        elementsToShow.forEach(selector => {
+            const element = document.querySelector(selector);
+            if (element) {
+                element.classList.remove('hidden');
+            }
         });
         
-        // Add share button functionality
-        const shareBtn = document.getElementById('share-btn');
-        if (shareBtn) {
-            shareBtn.addEventListener('click', () => {
-                const shareText = `🐱 I found ${this.likedCats.length} purrfect cats on MeowMatch! ` +
-                                 `Try it at: ${window.location.href}`;
-                
-                if (navigator.share) {
-                    navigator.share({
-                        title: 'My MeowMatch Results',
-                        text: shareText,
-                        url: window.location.href
-                    });
-                } else {
-                    navigator.clipboard.writeText(shareText);
-                    alert('Results copied to clipboard! 📋');
-                }
+        // Reset game state
+        this.currentIndex = 0;
+        this.likedCats = [];
+        this.isAnimating = false;
+        
+        // Reset swiped count
+        if (this.swipedCount) {
+            this.swipedCount.textContent = '0';
+        }
+        
+        // Reset progress
+        this.updateProgress();
+        
+        // Generate new cats
+        this.initializeCats();
+        
+        // Show first card
+        setTimeout(() => {
+            this.showCurrentCard();
+            
+            // Scroll back to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 300);
+    }
+
+    shareResults() {
+        const totalLikes = this.likedCats.length;
+        const catNames = this.likedCats.slice(0, 3).map((cat, index) => {
+            const names = ["Whiskers", "Luna", "Simba", "Bella", "Oliver", "Chloe"];
+            return names[index % names.length];
+        }).join(', ');
+        
+        const shareText = `🐱 I found ${totalLikes} purrfect cats on MeowMatch! ` +
+                         `${totalLikes > 0 ? `My favorites: ${catNames}${totalLikes > 3 ? ' and more!' : ''}` : ''} ` +
+                         `Try it at: ${window.location.href}`;
+        
+        if (navigator.share) {
+            navigator.share({
+                title: 'My MeowMatch Results',
+                text: shareText,
+                url: window.location.href
             });
+        } else {
+            navigator.clipboard.writeText(shareText);
+            alert('Results copied to clipboard! 📋');
         }
     }
 
@@ -478,6 +531,42 @@ class PawsAndPreferences {
             setTimeout(() => {
                 confetti.remove();
             }, 5000);
+        }
+    }
+
+    playMeowSound() {
+        try {
+            // Create simple meow sound using Web Audio API
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.3);
+            
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+            
+            // Visual feedback
+            const meowBtn = document.getElementById('meow-btn');
+            if (meowBtn) {
+                meowBtn.classList.add('pulse');
+                setTimeout(() => meowBtn.classList.remove('pulse'), 300);
+            }
+        } catch (e) {
+            console.log("Meow sound failed:", e);
+            // Fallback: just visual feedback
+            const meowBtn = document.getElementById('meow-btn');
+            if (meowBtn) {
+                meowBtn.classList.add('pulse');
+                setTimeout(() => meowBtn.classList.remove('pulse'), 300);
+            }
         }
     }
 }
