@@ -1438,3 +1438,12 @@ button, .cat-card {
         padding: 20px;
     }
 }
+/*animation for confetti-effect */
+@keyframes confettiSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.confetti-effect {
+  animation: confettiSpin 2s linear infinite;
+}
