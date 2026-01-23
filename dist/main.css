@@ -673,7 +673,7 @@ body::before {
 }
 
 kbd {
-  background: white;
+  background: #FBD0C0;
   padding: 2px 8px;
   border-radius: 5px;
   border: 1px solid #DDD;
